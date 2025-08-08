@@ -1,6 +1,6 @@
 # System Architecture: Geotab Add-In Generator
 
-This document outlines the multi-agent system architecture for the automated generation of Geotab Add-Ins.
+This document outlines the multi-agent system architecture for the automated generation of Geotab Add-Ins
 
 ## Flow Diagram
 
@@ -14,7 +14,7 @@ graph TD
 
     subgraph "Core System"
         Orchestrator(Orchestrator Agent)
-        LLM[("✨ Gemini LLM")]
+        LLM[("Gemini LLM")]
     end
 
     subgraph "Specialist Agents (Worker Guild)"
