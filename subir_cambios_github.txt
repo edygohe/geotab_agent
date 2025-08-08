@@ -25,3 +25,16 @@ git commit -m "Agregado mensaje de bienvenida al agente principal"
 git push
 
 
+
+
+
+*********************************
+para eliminar repositorio
+*********************************
+
+1. GitHub/repositorio/settings/danger zone/eliminar
+2. Desde terminal del directorio del proyecto: git remote rm origin
+3. Remove-Item -Recurse -Force .git
+4. Ejecutar setup_repo.ps1
+
+

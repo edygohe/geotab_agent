@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "geotab_agent"
 version = "0.1.0"
+authors = [
+    {name = "Edgar Gómez Hernández"},
+]
 description = "Agentes para el protocolo MCP con Geotab."
 readme = "README.md"
 requires-python = ">=3.8"
