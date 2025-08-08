@@ -1,6 +1,6 @@
 # System Architecture: Geotab Add-In Generator
 
-This document outlines the multi-agent system architecture for the automated generation of Geotab Add-Ins
+This document outlines the multi-agent system architecture for the automated generation of Geotab Add-Ins.
 
 ## Flow Diagram
 
@@ -8,43 +8,38 @@ The system follows a sequential workflow managed by an Orchestrator Agent, with 
 
 ```mermaid
 graph TD
-    subgraph "User Interaction"
+    subgraph "Input & Orchestration"
         User[("👤 User")]
-    end
-
-    subgraph "Core System"
         Orchestrator(Orchestrator Agent)
         LLM[("Gemini LLM")]
     end
 
-    subgraph "Specialist Agents (Worker Guild)"
-        Analyst(Analyst Agent)
-        Designer(Designer Agent)
-        Coder(Coder Agent)
-        Tester(Tester Agent)
-        Deployer(Deployer Agent)
+    subgraph "Development Pipeline"
+        Analyst(Analyst)
+        Designer(Designer)
+        Coder(Coder)
+        Tester(Tester)
     end
-
-    subgraph "Final Product"
+    
+    subgraph "Deployment"
+        Deployer(Deployer)
         AddIn{{"</> Deployed Add-In"}}
     end
 
-    User -- "Natural Language Request (e.g., 'Create a map Add-In')" --> Orchestrator
-    Orchestrator -- "1. Analyze Prompt & Create Plan" --> LLM
-    LLM -- "2. Structured Plan & Task Breakdown" --> Orchestrator
-    Orchestrator -- "3. Delegate: Analyze Requirements" --> Analyst
-    Analyst -- "4. Refined Specifications" --> Orchestrator
-    Orchestrator -- "5. Delegate: Design Solution" --> Designer
-    Designer -- "6. Technical Design / Blueprints" --> Orchestrator
-    Orchestrator -- "7. Delegate: Write Code" --> Coder
-    Coder -- "8. Generated Code" --> Orchestrator
-    Orchestrator -- "9. Delegate: Test Code" --> Tester
-    Tester -- "10a. Bugs / Issues Found" --> Orchestrator
-    Orchestrator -- "Delegate: Fix Bugs" --> Coder
-    Tester -- "10b. Code Approved" --> Orchestrator
-    Orchestrator -- "11. Delegate: Deploy Add-In" --> Deployer
-    Deployer -- "12. Packaged Add-In" --> AddIn
-    Orchestrator -- "13. Notify: Add-In Ready" --> User
+    User -- "Natural Language Request" --> Orchestrator
+    Orchestrator -- "Gets High-Level Plan" --> LLM
+    
+    Orchestrator -- "Initiates Pipeline" --> Analyst
+    Analyst -- "Specifications" --> Designer
+    Designer -- "Technical Design" --> Coder
+    Coder -- "Generated Code" --> Tester
+    
+    Tester -- "Bugs Found (Iterate)" --> Coder
+    Tester -- "Code Approved" --> Deployer
+    
+    Deployer -- "Packages & Deploys" --> AddIn
+    AddIn --> Orchestrator
+    Orchestrator -- "Notifies User" --> User
 ```
 
 ## Agent Responsibilities

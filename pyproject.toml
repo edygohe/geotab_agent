@@ -12,6 +12,6 @@ description = "Agentes para el protocolo MCP con Geotab."
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    # "requests",  # Aquí añadirás librerías como requests
-    # "pydantic",  # o pydantic cuando las necesites.
+    "python-dotenv",
+    "google-generativeai",
 ]
