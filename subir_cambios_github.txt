@@ -1,0 +1,27 @@
+**********************************************************************************************
+Rutina diaria será:
+
+Escribir código y hacer cambios.
+Ejecutar git add . para preparar los cambios.
+Ejecutar git commit -m "Un mensaje que describe mis cambios" para guardarlos localmente.
+Ejecutar git push para subirlos a GitHub.
+
+**********************************************************************************************
+
+
+# Antes de subir checar status
+git status
+------------------------------------------------------------------
+# Opción A: Añadir todos los archivos modificados y nuevos
+git add .
+------------------------------------------------------------------
+# Opción B: Añadir solo un archivo específico
+git add src/geotab_agent/main.py
+------------------------------------------------------------------
+# Comentario del cambio
+git commit -m "Agregado mensaje de bienvenida al agente principal"
+------------------------------------------------------------------
+# Ejecutar git push para subirlos a GitHub.
+git push
+
+

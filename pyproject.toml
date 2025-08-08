@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geotab_agent"
+version = "0.1.0"
+description = "Agentes para el protocolo MCP con Geotab."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    # "requests",  # Aquí añadirás librerías como requests
+    # "pydantic",  # o pydantic cuando las necesites.
+]

@@ -1,0 +1,27 @@
+# Virtual Environment
+# Ignora la carpeta del entorno virtual, que contiene todas las librerías.
+# Cada desarrollador crea la suya.
+venv/
+.venv/
+
+# Python cache
+# Ignora los archivos de caché que Python genera automáticamente.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artifacts
+# Ignora los archivos que se generan al "construir" o empaquetar tu proyecto.
+build/
+dist/
+*.egg-info/
+
+# IDE specific
+# Ignora carpetas de configuración de editores de código populares.
+.idea/
+.vscode/
+
+# Environment variables
+# ¡MUY IMPORTANTE! Ignora el archivo que contendrá tus secretos.
+.env
