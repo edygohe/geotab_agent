@@ -38,3 +38,7 @@ para eliminar repositorio
 4. Ejecutar setup_repo.ps1
 
 
+*********************************
+para convertir .MD a PNG, JPG, etc
+*********************************
+1. mmdc -i orchestrator_design.md -o ..\images\orchestrator_design.png

@@ -1,15 +1,23 @@
-from geotab_agent.config import settings
+from geotab_agent.agents import OrchestratorAgent
 
 
 def run():
     """
     Punto de entrada principal para ejecutar la aplicación.
-    Demuestra la carga de configuración.
+    Aquí probamos el flujo de trabajo de los agentes.
     """
-    print("Iniciando el agente de Geotab...")
-    print(f"Modelo Gemini a usar: {settings.GEMINI_MODEL_NAME}")
-    # Por seguridad, no imprimimos la clave completa, solo verificamos que existe.
-    print(f"Clave de Google API cargada: {'Sí' if settings.GOOGLE_API_KEY else 'No'}")
+    print("--- Generador de Add-In de Geotab ---")
+
+    # 1. Definimos la solicitud del usuario (hardcodeada por ahora)
+    user_request = "Crea un Add-In de Geotab que muestre un simple 'Hola Mundo Geotab' en la página."
+
+    # 2. Instanciamos el Orquestador
+    orchestrator = OrchestratorAgent()
+
+    # 3. Ejecutamos el proceso de orquestación
+    orchestrator.run(user_request=user_request)
+
+    print("\n--- Proceso Finalizado ---")
 
 
 if __name__ == "__main__":
