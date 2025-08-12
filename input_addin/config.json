@@ -1,0 +1,22 @@
+{
+  "name": "Geotab Genesis (Generator UI)",
+  "pageName": {
+    "en": "Geotab Genesis"
+  },
+  "description": {
+    "en": "An interface to generate new Geotab Add-Ins using AI."
+  },
+  "supportEmail": "edygohe@gmail.com",
+  "version": "1.0.0",
+  "translator": "translations/",
+  "items": [
+    {
+      "url": "https://edygohe.github.io/addins/genesis_ui/index.html",
+      "path": "Development/Genesis",
+      "menuName": {
+        "en": "✨ New Add-In (Genesis)"
+      }
+    }
+  ],
+  "isSigned": false
+}

@@ -1,0 +1,15 @@
+#message {
+    font-family: Arial;
+    font-size: 16px;
+    color: black;
+    text-align: center;
+    padding: 20px;
+}
+
+#error-message {
+    font-family: Arial;
+    font-size: 14px;
+    color: red;
+    text-align: center;
+    padding: 10px;
+}

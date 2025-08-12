@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consulta de Vehículos Dañados</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="geotabAddin">
+        <h1>Consulta de Vehículos Dañados</h1>
+        <div id="filters">
+            <label for="dateRange">Rango de Fechas:</label>
+            <input type="date" id="startDate" /> - <input type="date" id="endDate" />
+            <br>
+            <label for="vehicleId">ID de Vehículo:</label>
+            <input type="text" id="vehicleId" />
+            <br>
+            <label for="damageType">Tipo de Daño:</label>
+            <select id="damageType"></select>
+            <br>
+            <button id="searchButton">Buscar</button>
+        </div>
+        <div id="loadingIndicator" style="display: none;">Cargando...</div>
+        <div id="errorMessage" style="color: red;"></div>
+        <table id="vehicleTable">
+            <thead>
+                <tr>
+                    <th>ID del Vehículo</th>
+                    <th>Fecha del Daño</th>
+                    <th>Descripción del Daño</th>
+                    <th>Ubicación</th>
+                    <th>Tipo de Daño</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

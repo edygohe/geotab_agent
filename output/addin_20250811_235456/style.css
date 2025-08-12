@@ -1,0 +1,10 @@
+#messageContainer {
+    text-align: center; /* Centra el mensaje horizontalmente */
+    padding: 20px; /* Añade espacio alrededor del mensaje */
+}
+
+#helloMessage {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: black;
+}

@@ -11,12 +11,14 @@ def test_orchestrator_agent_run_flow():
     mock_plan_output = {"plan": "Plan generado por el mock."}
     mock_specs_output = {"specifications": "Especificaciones generadas por el mock."}
     mock_design_output = {"design": "Diseño generado por el mock."}
+    mock_code_output = {"code_path": "output/mock_path"}
 
     # Mockeamos los métodos internos y los agentes dependientes para aislar al orquestador.
     # No queremos probar la generación real del plan o el analista aquí, solo el flujo.
     with patch.object(OrchestratorAgent, '_generate_plan', return_value=mock_plan_output) as mock_generate_plan, \
          patch('geotab_agent.agents.orchestrator_agent.AnalystAgent') as MockAnalyst, \
-         patch('geotab_agent.agents.orchestrator_agent.DesignerAgent') as MockDesigner:
+         patch('geotab_agent.agents.orchestrator_agent.DesignerAgent') as MockDesigner, \
+         patch('geotab_agent.agents.orchestrator_agent.CoderAgent') as MockCoder:
 
         # Configuramos el mock del AnalystAgent para que su método 'run' devuelva las especificaciones mock.
         mock_analyst_instance = MockAnalyst.return_value
@@ -27,6 +29,11 @@ def test_orchestrator_agent_run_flow():
         mock_designer_instance = MockDesigner.return_value
         mock_designer_instance.run.return_value = mock_design_output
         mock_designer_instance.agent_name = "Designer"  # <-- Y esta para el diseñador
+
+        # Configuramos el mock del CoderAgent
+        mock_coder_instance = MockCoder.return_value
+        mock_coder_instance.run.return_value = mock_code_output
+        mock_coder_instance.agent_name = "Coder"
 
         # 2. Actuación (Act)
         orchestrator = OrchestratorAgent()
@@ -39,4 +46,6 @@ def test_orchestrator_agent_run_flow():
         mock_analyst_instance.run.assert_called_once_with(input_data=mock_plan_output)
         MockDesigner.assert_called_once()
         mock_designer_instance.run.assert_called_once_with(input_data=mock_specs_output)
-        assert result == mock_design_output
+        MockCoder.assert_called_once()
+        mock_coder_instance.run.assert_called_once_with(input_data=mock_design_output)
+        assert result == mock_code_output

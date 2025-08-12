@@ -1,0 +1,15 @@
+{
+  "name": "Generated Add-In (addin_20250812_005404)",
+  "supportEmail": "edygohe@gmail.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://<TU_USUARIO.github.io>/<TU_REPOSITORIO>/addin_20250812_005404/index.html",
+      "path": "Development/Generated",
+      "menuName": {
+        "en": "Generated: addin_20250812_005404"
+      }
+    }
+  ],
+  "isSigned": false
+}

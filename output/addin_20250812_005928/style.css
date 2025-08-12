@@ -1,0 +1,26 @@
+body {
+    font-family: sans-serif;
+}
+
+#results-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#results-table th, #results-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#results-table th {
+    background-color: #f2f2f2;
+}
+
+#message-area {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+/* Estilos adicionales para mejorar la apariencia */

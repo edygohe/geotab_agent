@@ -1,6 +1,7 @@
 from .base_agent import BaseAgent
 from .analyst_agent import AnalystAgent
 from .designer_agent import DesignerAgent
+from .coder_agent import CoderAgent
 from ..mcp import Message, Task, TaskInput, Result
 from typing import Dict, Any
 
@@ -34,6 +35,7 @@ class OrchestratorAgent(BaseAgent):
         # Inicializamos los agentes que este orquestador va a dirigir
         self.analyst = AnalystAgent()
         self.designer = DesignerAgent()
+        self.coder = CoderAgent()
 
     def run(self, user_request: str) -> Dict[str, Any]:
         """
@@ -91,8 +93,28 @@ class OrchestratorAgent(BaseAgent):
         print(design_message.result.output["design"])
         print("-------------------------------")
 
-        # Devolvemos el diccionario de salida del último paso.
-        return design_message.result.output
+        # 4. Codificación (Orchestrator -> Coder)
+        print("\n----- 💻 ESTADO: CODIFICACIÓN -----")
+        coding_task = Task(
+            description="Escribir archivos de código a partir de un diseño técnico.",
+            input=TaskInput(parameters=design_message.result.output)
+        )
+        coding_message = Message(
+            fromAgent=self.agent_name,
+            toAgent=self.coder.agent_name,
+            task=coding_task
+        )
+        print(f"📨 Enviando mensaje a {self.coder.agent_name} (ID: {coding_message.messageId})")
+
+        code_output = self.coder.run(input_data=coding_message.task.input.parameters)
+        coding_message.result = Result(status="success", output=code_output)
+
+        print(f"✅ {self.coder.agent_name} completó la tarea con éxito.")
+        print("\n--- Código Generado ---")
+        print(f"Archivos guardados en: {coding_message.result.output['code_path']}")
+        print("-----------------------")
+
+        return coding_message.result.output
 
     def _generate_plan(self, user_request: str) -> Dict[str, Any]:
         """Interactúa con el LLM para generar un plan de desarrollo de alto nivel."""

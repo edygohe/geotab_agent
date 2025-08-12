@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehículos con Fallos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="geotabAddin"></div>
+    <div id="addin-content">
+        <h1>Vehículos con Fallos</h1>
+        <div id="filters">
+            <label for="date-filter">Fecha:</label>
+            <input type="date" id="date-filter-start"> - <input type="date" id="date-filter-end">
+            <label for="type-filter">Tipo de Fallo:</label>
+            <select id="type-filter"></select>
+            <label for="vehicle-id-filter">ID de Vehículo:</label>
+            <input type="text" id="vehicle-id-filter">
+        </div>
+        <button id="update-button">Actualizar</button>
+        <div id="loading-indicator" style="display: none;">Cargando...</div>
+        <div id="error-messages"></div>
+        <table id="vehicle-table">
+            <thead>
+                <tr>
+                    <th>ID del Vehículo</th>
+                    <th>Fecha y Hora del Fallo</th>
+                    <th>Descripción del Fallo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consulta de Vehículos Dañados</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="geotabAddin"></div>  <!-- Div requerido por Geotab -->
+    <h1>Consulta de Vehículos Dañados</h1>
+
+    <div id="criteria-section">
+        <!-- Sección de criterios de daño (se rellenará con JS) -->
+    </div>
+
+    <button id="search-button">Consultar</button>
+
+    <div id="results-section">
+        <!-- Sección de resultados (tabla) -->
+        <table id="results-table">
+            <thead>
+                <tr>
+                    <th>ID Vehículo</th>
+                    <th>Nombre Vehículo</th>
+                    <th>Fecha Daño</th>
+                    <th>Descripción Daño</th>
+                    <th>Ubicación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas de resultados (se rellenarán con JS) -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="filter-section">
+        <!-- Sección de filtros y ordenamiento (se rellenará con JS) -->
+    </div>
+
+    <button id="export-button">Exportar a CSV</button>
+
+    <div id="message-area"></div> <!-- Área de mensajes -->
+
+    <script src="script.js"></script>
+</body>
+</html>

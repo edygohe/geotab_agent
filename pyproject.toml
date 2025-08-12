@@ -22,4 +22,6 @@ package-dir = {"" = "src"}
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "fastapi",
+    "uvicorn[standard]",
 ]

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geotab Genesis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="geotabAddin">
+        <div class="container">
+            <div id="loader-overlay" class="hidden">
+                <div class="spinner"></div>
+                <p>Generando Add-In...</p>
+            </div>
+            <h1 data-i18n="Geotab Genesis">Geotab Genesis</h1>
+            <p data-i18n="An interface to generate new Geotab Add-Ins using AI.">Describe el Add-In que quieres construir. Sé lo más detallado posible.</p>
+            
+            <textarea id="userRequest" rows="10" placeholder="Ej: Crea un Add-In que muestre un mapa y un botón. Al hacer clic en el botón, centra el mapa en la ubicación del primer vehículo de la lista."></textarea>
+            
+            <button id="generateButton">
+                <span class="icon">✨</span> <span data-i18n="✨ New Add-In (Genesis)">Generar Add-In</span>
+            </button>
+
+            <div id="result-container" class="hidden">
+                <h2>¡Add-In Generado!</h2>
+                <p>Copia este JSON y pégalo en MyGeotab para instalar tu nuevo Add-In.</p>
+                <div class="config-wrapper">
+                    <textarea id="config-output" readonly rows="15"></textarea>
+                    <button id="copy-button" title="Copiar al portapapeles">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Geotab API script -->
+    <script src="script.js"></script>
+</body>
+</html>
