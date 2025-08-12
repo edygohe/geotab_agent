@@ -14,7 +14,9 @@ Basado en las siguientes especificaciones, genera el diseño técnico completo. 
 1.  **Estructura de Archivos:** Una lista de los archivos necesarios (ej. `index.html`, `style.css`, `script.js`).
 2.  **Código HTML (`index.html`):** El código HTML completo. Debe incluir una referencia al CSS y al JS. Asegúrate de incluir el `div` con el id "geotabAddin" que es requerido por Geotab.
 3.  **Código CSS (`style.css`):** El código CSS para dar estilo a los elementos.
-4.  **Código JavaScript (`script.js`):** El código JavaScript para la lógica. Debe incluir el esqueleto de la función `geotab.addin.initialize` para interactuar con la API de Geotab.
+4.  **Código JavaScript (`script.js`):** El código JavaScript para la lógica. Debe incluir el esqueleto de la función `geotab.addin.initialize` para interactuar con la API de Geotab. 
+    **Importante:** Para cualquier lista de elementos en la que se pueda hacer clic (como una lista de vehículos), utiliza la técnica de **delegación de eventos** (event delegation). Asigna un único 'click listener' al contenedor de la lista (ej. `<ul>`) en lugar de a cada elemento `<li>` individualmente. Esto asegura que los eventos funcionen incluso si la lista se actualiza dinámicamente.
+5.  **Manifiesto de Configuración (`config.json`):** El código JSON completo para el archivo de configuración. La URL debe ser un placeholder como `https://<TU_USUARIO.github.io>/<TU_REPOSITORIO>/<ADDIN_NAME>/index.html`.
 
 La respuesta debe estar completamente en español y estructurada con bloques de código markdown para cada archivo.
 
@@ -45,5 +47,5 @@ class DesignerAgent(BaseAgent):
         prompt = DESIGNER_PROMPT_TEMPLATE.format(
             task_description=specifications
         )
-        response = self._model.generate_content(prompt)
+        response = self._call_llm(prompt)
         return {"design": response.text}

@@ -1,0 +1,67 @@
+#geotabAddin {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#leftPanel, #rightPanel {
+    width: 50%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#leftPanel {
+    border-right: 1px solid #ccc;
+}
+
+#vehicleList {
+    list-style: none;
+    padding: 0;
+}
+
+#vehicleList li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.severity-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.severity-red { background-color: red; }
+.severity-yellow { background-color: yellow; }
+.severity-green { background-color: green; }
+
+#faultTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#faultTable th, #faultTable td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+#mapContainer {
+    height: 300px;
+    margin-top: 10px;
+}
+
+#updateButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#errorMessages {
+    color: red;
+    margin-top: 10px;
+}

@@ -1,0 +1,61 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+}
+
+#leftPanel {
+    width: 30%;
+    padding: 10px;
+    border-right: 1px solid #ccc;
+}
+
+#rightPanel {
+    width: 70%;
+    padding: 10px;
+}
+
+#vehicleList {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#vehicleList th, #vehicleList td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#faultTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#faultTable th, #faultTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.severity-low {
+    background-color: lightgreen;
+}
+
+.severity-medium {
+    background-color: yellow;
+}
+
+.severity-high {
+    background-color: orange;
+}
+
+.severity-critical {
+    background-color: red;
+}
+
+#statusIndicator {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+}

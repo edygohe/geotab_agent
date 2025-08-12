@@ -20,7 +20,7 @@ class CoderAgent(BaseAgent):
         """
         Toma el diseño técnico, lo parsea y escribe los archivos.
         """
-        print(f"💻 Programador recibió el diseño. Escribiendo archivos de código...")
+        self.log("Recibió el diseño. Escribiendo archivos de código...")
         design_text = input_data.get("design", "")
         if not design_text:
             raise ValueError("El 'design' es requerido en los datos de entrada para el CoderAgent.")
@@ -31,50 +31,28 @@ class CoderAgent(BaseAgent):
         os.makedirs(project_path, exist_ok=True)
 
         # Parsear y escribir cada archivo
-        self._write_file_from_block(design_text, "html", "index.html", project_path)
-        self._write_file_from_block(design_text, "css", "style.css", project_path)
-        self._write_file_from_block(design_text, "javascript", "script.js", project_path)
-        self._write_config_json(project_path)
+        self._write_file_from_block(design_text, ["html"], "index.html", project_path)
+        self._write_file_from_block(design_text, ["css"], "style.css", project_path)
+        self._write_file_from_block(design_text, ["javascript", "js"], "script.js", project_path)
+        self._write_file_from_block(design_text, ["json"], "config.json", project_path)
 
-        print(f"✅ Código generado con éxito en: {project_path}")
+        self.log(f"Código generado con éxito en: {project_path}")
         return {"code_path": project_path}
 
-    def _write_file_from_block(self, text: str, lang: str, filename: str, path: str):
-        """Extrae un bloque de código markdown y lo escribe en un archivo."""
-        # La expresión regular anterior era demasiado estricta. Esta es más robusta
-        # y captura todo el contenido entre los delimitadores del bloque de código.
-        pattern = re.compile(rf"```{lang}(.*?)```", re.DOTALL)
-        match = pattern.search(text)
-        if match:
-            # group(1) captura el contenido. .strip() elimina espacios y saltos de línea
-            # al principio y al final, como el que queda después de la etiqueta de lenguaje.
-            code = match.group(1).strip()
-            file_path = os.path.join(path, filename)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(code)
-            print(f"   - Archivo creado: {file_path}")
-        else:
-            print(f"   - Advertencia: No se encontró bloque de código para '{lang}' en el diseño.")
-
-    def _write_config_json(self, project_path: str):
-        """Crea un archivo config.json de plantilla en el directorio del proyecto."""
-        project_name = os.path.basename(project_path)
-        config_data = {
-            "name": f"Generated Add-In ({project_name})",
-            "supportEmail": "edygohe@gmail.com",
-            "version": "1.0.0",
-            "items": [
-                {
-                    "url": f"https://<TU_USUARIO.github.io>/<TU_REPOSITORIO>/{project_name}/index.html",
-                    "path": "Development/Generated",
-                    "menuName": {
-                        "en": f"Generated: {project_name}"
-                    }
-                }
-            ],
-            "isSigned": False
-        }
-        file_path = os.path.join(project_path, "config.json")
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(config_data, f, indent=2)
-        print(f"   - Archivo creado: {file_path}")
+    def _write_file_from_block(self, text: str, lang_aliases: list[str], filename: str, path: str):
+        """Extrae un bloque de código markdown y lo escribe en un archivo, probando varios alias de lenguaje."""
+        for lang in lang_aliases:
+            # La expresión regular busca el alias del lenguaje, ignorando mayúsculas/minúsculas,
+            # seguido de una nueva línea, y captura todo hasta los tres backticks de cierre.
+            # Esto es más robusto ante espacios o caracteres extra después del alias.
+            pattern = re.compile(rf"```{lang}[^\n]*\n(.*?)\n```", re.IGNORECASE | re.DOTALL)
+            match = pattern.search(text)
+            if match:
+                code = match.group(1).strip()
+                file_path = os.path.join(path, filename)
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(code)
+                self.log(f"Archivo creado: {file_path}", "info")
+                return  # Salimos en cuanto encontramos una coincidencia
+        # Si el bucle termina sin encontrar nada
+        self.log(f"No se encontró bloque de código para '{filename}' (alias probados: {lang_aliases}).", "warning")

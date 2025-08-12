@@ -44,5 +44,5 @@ class AnalystAgent(BaseAgent):
         if not plan:
             raise ValueError("El 'plan' es requerido en los datos de entrada para el AnalystAgent.")
         prompt = ANALYST_PROMPT_TEMPLATE.format(task_description=plan)
-        response = self._model.generate_content(prompt)
+        response = self._call_llm(prompt)
         return {"specifications": response.text}

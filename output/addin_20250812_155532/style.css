@@ -1,0 +1,59 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+}
+
+.panel-left {
+    width: 30%;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+}
+
+.panel-right {
+    width: 70%;
+    padding: 20px;
+}
+
+#vehicleList {
+    list-style: none;
+    padding: 0;
+}
+
+#vehicleList li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#vehicleList li.high {
+    background-color: #f08080; /* Rojo */
+}
+
+#vehicleList li.medium {
+    background-color: #fffacd; /* Amarillo */
+}
+
+#vehicleList li.low {
+    background-color: #90ee90; /* Verde */
+}
+
+#map {
+    height: 300px;
+    width: 100%;
+}
+
+#faultDetailsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#faultDetailsTable th, #faultDetailsTable td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}

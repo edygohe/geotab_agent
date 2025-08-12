@@ -24,6 +24,8 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    # Permitimos cualquier subdominio de ngrok para el túnel HTTPS
+    allow_origin_regex=r"https://.*\.ngrok-free\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,23 +37,12 @@ class GenerationRequest(BaseModel):
 @app.post("/generate-addin")
 def generate_addin(request: GenerationRequest):
     orchestrator = OrchestratorAgent()
-    # 1. El orquestador ejecuta la tarea y devuelve la ruta de salida
-    result = orchestrator.run(user_request=request.prompt)
+    # 1. El orquestador ejecuta todo el flujo, incluido el despliegue
+    # y la actualización del config.json.
+    result = orchestrator.run(input_data={"user_request": request.prompt})
     
-    output_path = result.get("code_path")
-    config_content = ""
-
-    # 2. Si tenemos una ruta, intentamos leer el config.json generado
-    if output_path:
-        try:
-            config_file_path = pathlib.Path(output_path) / "config.json"
-            if config_file_path.is_file():
-                config_content = config_file_path.read_text(encoding="utf-8")
-        except Exception as e:
-            print(f"ADVERTENCIA: No se pudo leer el archivo config.json generado. Error: {e}")
-
-    # 3. Añadimos el contenido del JSON al diccionario de resultados
-    result['config_json'] = config_content
+    # 2. El 'result' ya contiene toda la información necesaria,
+    # incluido el 'config_json' actualizado por el DeployerAgent.
     return {"status": "success", "message": "Add-In generation process completed.", "output": result}
 
 @app.get("/health")

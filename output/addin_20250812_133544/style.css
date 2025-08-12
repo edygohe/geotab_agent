@@ -1,0 +1,49 @@
+body {
+    font-family: sans-serif;
+}
+
+.container {
+    display: flex;
+}
+
+.left-panel {
+    width: 30%;
+    padding: 10px;
+    border-right: 1px solid #ccc;
+}
+
+.right-panel {
+    width: 70%;
+    padding: 10px;
+}
+
+.vehicle-item {
+    margin-bottom: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.vehicle-status {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.vehicle-status.critical { background-color: red; }
+.vehicle-status.high { background-color: orange; }
+.vehicle-status.medium { background-color: yellow; }
+.vehicle-status.low { background-color: green; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
