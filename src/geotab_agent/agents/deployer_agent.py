@@ -44,7 +44,7 @@ class DeployerAgent(BaseAgent):
         print(f"URL PÚBLICA DEL ADD-IN: {final_url}") # Log adicional para fácil acceso
         return json.dumps(config_data, indent=2, ensure_ascii=False)
 
-    def _wait_for_deployment(self, addin_name: str, timeout_seconds=180, check_interval_seconds=10):
+    def _wait_for_deployment(self, addin_name: str, timeout_seconds=180, check_interval_seconds=5):
         """Espera a que el endpoint del Add-In esté disponible haciendo polling directo."""
         self.log("Esperando la activación del endpoint de GitHub Pages (haciendo polling)...")
         
@@ -54,9 +54,15 @@ class DeployerAgent(BaseAgent):
         start_time = time.time()
         while time.time() - start_time < timeout_seconds:
             try:
+                # Añadimos cabeceras para evitar la caché del CDN de GitHub.
+                # Esto le pide al servidor la versión más fresca del archivo.
+                headers = {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
                 # Usamos un timeout corto para la petición para no quedarnos colgados
                 # Usamos HEAD porque es más ligero, solo necesitamos el código de estado.
-                response = requests.head(final_url, timeout=5)
+                response = requests.head(final_url, timeout=5, headers=headers)
                 
                 if response.status_code == 200:
                     self.log("¡Endpoint del Add-In activo y respondiendo con 200 OK!", "success")

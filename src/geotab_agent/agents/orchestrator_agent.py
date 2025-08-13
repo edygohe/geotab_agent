@@ -2,6 +2,7 @@ from .base_agent import BaseAgent
 from .coder_agent import CoderAgent
 from .deployer_agent import DeployerAgent
 from typing import Dict, Any
+import time
 
 # TODO: Hacer que el idioma del prompt sea configurable en el futuro.
 PLANNING_PROMPT_TEMPLATE = """
@@ -37,24 +38,36 @@ Basado en el siguiente plan, genera un diseño técnico que incluya:
 - **Llamadas a la API:** Usa siempre la cadena `.then().catch()` para manejar las llamadas a la API de Geotab. Llama siempre al `callback()` de `initialize` al final de tu lógica, tanto en éxito como en error.
 - **Mapas (IMPORTANTE):** Para mostrar un mapa, la forma más robusta es crear un mapa autocontenido usando la librería **Leaflet.js**. No intentes usar `state.getMap()`.
 
-  **Ejemplo de Add-In con Mapa Autocontenido (Leaflet.js):**
+# LÓGICA DE DECISIÓN
+Analiza la solicitud del usuario y elige UNO de los siguientes ejemplos como base.
+- Si la solicitud menciona explícitamente un "mapa", "ubicación", "paneles" o "frames", **DEBES** usar el "Ejemplo 1: Add-In con Mapa y Lista Interactiva".
+- Si la solicitud solo pide una "lista", "tabla", "alerta" o una funcionalidad simple sin componentes visuales complejos, **DEBES** usar el "Ejemplo 2: Add-In con Lista Simple y Alertas".
+No combines características de diferentes ejemplos a menos que se pida explícitamente.
+
+---
+  **Ejemplo 1: Add-In con Mapa y Lista Interactiva (Dos Paneles)**
   
   **1. `index.html` (Debe incluir Leaflet y un div para el mapa):**
   ```html
   <!DOCTYPE html>
   <html>
   <head>
-      <title>Mi Add-In con Mapa</title>
+      <title>Add-In con Mapa y Lista</title>
       <!-- CSS de Leaflet -->
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
       <link rel="stylesheet" href="style.css">
   </head>
   <body>
       <div id="geotabAddin">
-          <h2>Vehículos en el Mapa</h2>
-          <ul id="vehicle-list"></ul>
-          <!-- El div donde se renderizará el mapa -->
-          <div id="map"></div>
+          <div class="container">
+              <div class="panel" id="left-panel">
+                  <h2>Vehículos</h2>
+                  <ul id="vehicle-list"><li>Cargando...</li></ul>
+              </div>
+              <div class="panel" id="right-panel">
+                  <div id="map"></div>
+              </div>
+          </div>
       </div>
       <!-- JS de Leaflet (antes de tu script) -->
       <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -65,28 +78,57 @@ Basado en el siguiente plan, genera un diseño técnico que incluya:
 
   **2. `style.css` (Debe dar una altura al div del mapa):**
   ```css
-  #map {{
-      height: 400px;
+  /* CSS Scoped para evitar afectar la UI padre */
+  #geotabAddin {{
+      font-family: Arial, sans-serif;
+      height: 100%; /* Usa el 100% de la altura del iframe, es más robusto que vh */
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+  }}
+
+  #geotabAddin .container {{
+      display: flex;
+      flex-grow: 1; /* Ocupa el espacio restante */
+      height: 100%;
+  }}
+
+  #geotabAddin .panel {{
+      height: 100%;
+      box-sizing: border-box; /* El padding no aumenta el tamaño */
+  }}
+
+  #geotabAddin #left-panel {{
+      flex: 1; /* Ocupa 1/3 del espacio, se puede ajustar */
+      min-width: 250px;
+      padding: 10px;
+      overflow-y: auto; /* Scroll si la lista es larga */
+      border-right: 1px solid #ccc;
+  }}
+
+  #geotabAddin #right-panel {{
+      flex: 3; /* Ocupa 2/3 del espacio */
+  }}
+
+  #geotabAddin #map {{
+      height: 100%;
       width: 100%;
-      margin-top: 10px;
   }}
 
-  #vehicle-list li {{
+  #geotabAddin #vehicle-list {{
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+  }}
+
+  #geotabAddin #vehicle-list li {{
       cursor: pointer;
-      padding: 8px;
+      padding: 10px 8px;
       border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
   }}
 
-  #vehicle-list li:hover {{
-      background-color: #f0f8ff;
-  }}
-  #vehicle-list li {{
-      cursor: pointer;
-      padding: 8px;
-      border-bottom: 1px solid #eee;
-  }}
-
-  #vehicle-list li:hover {{
+  #geotabAddin #vehicle-list li:hover {{
       background-color: #f0f8ff;
   }}
   ```
@@ -97,6 +139,7 @@ Basado en el siguiente plan, genera un diseño técnico que incluya:
       'use strict';
 
       let map; // Variable para guardar la instancia del mapa
+      let deviceStatusInfos = []; // Almacén para los datos de los vehículos
 
       return {{
           initialize: function (api, state, callback) {{
@@ -108,26 +151,67 @@ Basado en el siguiente plan, genera un diseño técnico que incluya:
                   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               }}).addTo(map);
 
-              // 3. Obtener los datos para mostrar en el mapa
+              const vehicleList = document.getElementById('vehicle-list');
+
+              // 3. Usar delegación de eventos para manejar los clics en la lista
+              vehicleList.addEventListener('click', function(e) {{
+                  if (e.target && e.target.nodeName === "LI") {{
+                      const deviceId = e.target.dataset.id;
+                      const selectedDevice = deviceStatusInfos.find(d => d.device.id === deviceId);
+                      if (selectedDevice && selectedDevice.latitude && selectedDevice.longitude) {{
+                          // Centrar el mapa en el vehículo seleccionado con un zoom de nivel 15
+                          map.setView([selectedDevice.latitude, selectedDevice.longitude], 15);
+                      }}
+                  }}
+              }});
+
+              // 4. Obtener los datos para mostrar en la lista y el mapa
               // Patrón de 2 pasos: Get<Device> -> Get<DeviceStatusInfo>
               api.call("Get", {{ typeName: "Device", resultsLimit: 5 }})
                   .then(function(devices) {{
-                      if (!devices || devices.length === 0) return Promise.resolve([]);
+                      if (!devices || devices.length === 0) {{
+                          vehicleList.innerHTML = '<li>No se encontraron vehículos.</li>';
+                          return Promise.resolve([]);
+                      }}
+
+                      // Poblar la lista de vehículos en la UI
+                      vehicleList.innerHTML = ''; // Limpiar "Cargando..."
+                      devices.forEach(function(device) {{
+                          const listItem = document.createElement('li');
+                          listItem.textContent = device.name;
+                          listItem.dataset.id = device.id; // Guardar el ID para el clic
+                          vehicleList.appendChild(listItem);
+                      }});
+
                       const deviceIds = devices.map(d => d.id);
                       return api.call("Get", {{ typeName: "DeviceStatusInfo", search: {{ deviceSearch: {{ ids: deviceIds }} }} }});
                   }})
-                  .then(function(deviceStatusInfos) {{
-                      // 4. Añadir un marcador por cada vehículo con coordenadas
+                  .then(function(statuses) {{
+                      deviceStatusInfos = statuses || [];
+                      // 5. Añadir un marcador por cada vehículo con coordenadas
                       deviceStatusInfos.forEach(function(statusInfo) {{
                           if (statusInfo.latitude && statusInfo.longitude) {{
                               L.marker([statusInfo.latitude, statusInfo.longitude]).addTo(map)
                                   .bindPopup(statusInfo.device.name);
                           }}
                       }});
+
+                      // 6. Ajustar el mapa para que se vean todos los vehículos inicialmente
+                      if (deviceStatusInfos.length > 0) {{
+                          const bounds = L.latLngBounds(deviceStatusInfos
+                              .filter(s => s.latitude && s.longitude)
+                              .map(s => [s.latitude, s.longitude])
+                          );
+                          if (bounds.isValid()) {{
+                              map.fitBounds(bounds);
+                          }}
+                      }}
+
                       callback(); // ¡Crucial!
                   }})
                   .catch(function(error) {{
                       console.error("Error inicializando el Add-In:", error);
+                      vehicleList.innerHTML = '<li>Error al cargar vehículos.</li>';
                       callback(); // ¡Crucial!
                   }});
           }}
@@ -167,6 +251,7 @@ class OrchestratorAgent(BaseAgent):
         """
         Orquesta todo el proceso de generación del Add-In utilizando el MCP.
         """
+        start_time = time.time()
         try:
             user_request = input_data.get("user_request")
             if not user_request:
@@ -202,15 +287,26 @@ class OrchestratorAgent(BaseAgent):
             final_output = code_output.copy()
             final_output.update(deploy_result)
             self.log("Proceso de despliegue finalizado.")
+            
+            end_time = time.time()
+            total_time = end_time - start_time
+            self.log(f"Tiempo total del proceso: {total_time:.2f} segundos.", "info")
+            
             final_output["status"] = "success"
             return final_output
         except Exception as e:
             # Captura cualquier excepción no controlada durante el flujo
             error_msg = f"Ocurrió un error inesperado en el orquestador: {e}"
             self.log(error_msg, "error")
+            
             # Imprime el traceback para depuración en el servidor
             import traceback
             traceback.print_exc()
+            
+            end_time = time.time()
+            total_time = end_time - start_time
+            self.log(f"El proceso falló después de {total_time:.2f} segundos.", "error")
+            
             return {"status": "failed", "message": error_msg}
 
     def _execute_planning_stage(self, user_request: str) -> Dict[str, Any] | None:

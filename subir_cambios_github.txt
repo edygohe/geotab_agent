@@ -41,4 +41,12 @@ para eliminar repositorio
 *********************************
 para convertir .MD a PNG, JPG, etc
 *********************************
-1. mmdc -i orchestrator_design.md -o ..\images\orchestrator_design.png
+# Instala mermaid-cli si no lo tienes: npm install -g @mermaid-js/mermaid-cli
+
+# Uso: mmdc -i <archivo_entrada.md> -o <archivo_salida.png>
+
+# Ejemplo 1: Convertir el diagrama de la arquitectura general (desde la raíz del proyecto)
+mmdc -i ./arquitectura_general.md -o ./docs/diagrams/images/arquitectura_general.png
+
+# Ejemplo 2: Convertir el diseño del orquestador (desde la raíz del proyecto)
+mmdc -i ./docs/diagrams/md/orchestrator_design.md -o ./docs/diagrams/images/orchestrator_design.png
