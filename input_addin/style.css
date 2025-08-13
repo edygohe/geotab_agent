@@ -123,6 +123,10 @@ button:hover {
     margin-bottom: 5px;
 }
 
+#result-container h2.error {
+    color: #dc3545; /* Rojo de error */
+}
+
 .config-wrapper {
     position: relative;
     margin-top: 15px;

@@ -9,12 +9,17 @@ class Settings(BaseSettings):
     # Cargar variables desde un archivo .env
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
 
-    # Clave de API para Google Gemini
-    GOOGLE_API_KEY: str
+    # --- Configuración General del LLM ---
+    LLM_PROVIDER: str = "gemini" # Puede ser "gemini" o "openai"
 
-    # Configuración del modelo
+    # --- Configuración de Google Gemini ---
+    GOOGLE_API_KEY: str
     GEMINI_MODEL_NAME: str = "gemini-1.5-flash"
     GENERATION_CONFIG: Dict[str, Any] = {"temperature": 0.1}
+
+    # --- Configuración de OpenAI ---
+    OPENAI_API_KEY: str | None = None
+    OPENAI_MODEL_NAME: str = "gpt-4o-mini"
 
     # --- Configuraciones para el despliegue en GitHub ---
     GITHUB_USERNAME: str

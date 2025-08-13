@@ -57,24 +57,46 @@ geotab.addin.geotabGenesis = function () {
 
                         if (!response.ok) {
                             // Captura errores HTTP como 500, 404, etc. que fetch no considera errores de red.
-                            const errorText = await response.text();
-                            throw new Error(`Error del servidor: ${response.status} ${response.statusText}. Detalles: ${errorText}`);
+                            let errorDetails = "No se pudieron obtener más detalles del error.";
+                            try {
+                                const errorData = await response.json();
+                                // FastAPI devuelve el error en response.detail.message o como un objeto en detail
+                                errorDetails = errorData.detail.message || JSON.stringify(errorData.detail, null, 2);
+                            } catch (e) {
+                                // Si la respuesta de error no es JSON, usa el texto plano.
+                                errorDetails = await response.text();
+                            }
+                            throw new Error(`Error del servidor: ${response.status} ${response.statusText}.\n\nDetalles:\n${errorDetails}`);
                         }
 
                         const result = await response.json();
                         console.log('Respuesta del backend:', result);
 
                         if (result.output && result.output.config_json && result.output.config_json.trim() !== '') {
+                            const resultTitle = resultContainer.querySelector('h2');
+                            resultTitle.textContent = '¡Add-In Generado!';
+                            resultTitle.classList.remove('error');
+                            resultContainer.querySelector('p').textContent = 'Copia este JSON y pégalo en MyGeotab para instalar tu nuevo Add-In.';
+                            resultContainer.querySelector('.config-wrapper').classList.remove('hidden');
+
                             const formattedJson = JSON.stringify(JSON.parse(result.output.config_json), null, 2);
                             configOutput.value = formattedJson;
                             resultContainer.classList.remove('hidden');
                             resultContainer.scrollIntoView({ behavior: 'smooth' });
                         } else {
-                            alert(`Proceso finalizado. Estado: ${result.status || 'desconocido'}. Mensaje: ${result.message || 'Sin mensaje.'}`);
+                            throw new Error(`La respuesta del backend no contenía un config.json válido. Mensaje: ${result.message || 'Sin detalles.'}`);
                         }
                     } catch (error) {
                         console.error('Error al contactar el backend:', error);
-                        alert('Hubo un error al conectar con el servidor de generación. Asegúrate de que el servidor local esté corriendo.');
+                        const resultTitle = resultContainer.querySelector('h2');
+                        const resultParagraph = resultContainer.querySelector('p');
+                        const configWrapper = resultContainer.querySelector('.config-wrapper');
+                        resultTitle.textContent = '¡Error en la Generación!';
+                        resultTitle.classList.add('error');
+                        resultParagraph.textContent = `Ocurrió un error: ${error.message}. Revisa los logs del servidor para más detalles.`;
+                        configWrapper.classList.add('hidden');
+                        resultContainer.classList.remove('hidden');
+                        resultContainer.scrollIntoView({ behavior: 'smooth' });
                     } finally {
                         // Volvemos a habilitar el botón al finalizar, tanto si hay éxito como si hay error
                         userRequestTextArea.disabled = false;

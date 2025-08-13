@@ -15,7 +15,7 @@ dependencies = [
     "pydantic-settings",
     "google-generativeai",
     "GitPython",
-
+    "openai",
 ]
 
 [tool.setuptools]

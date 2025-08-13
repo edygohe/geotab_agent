@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pathlib
@@ -39,11 +39,20 @@ def generate_addin(request: GenerationRequest):
     orchestrator = OrchestratorAgent()
     # 1. El orquestador ejecuta todo el flujo, incluido el despliegue
     # y la actualización del config.json.
-    result = orchestrator.run(input_data={"user_request": request.prompt})
-    
-    # 2. El 'result' ya contiene toda la información necesaria,
-    # incluido el 'config_json' actualizado por el DeployerAgent.
-    return {"status": "success", "message": "Add-In generation process completed.", "output": result}
+    result = orchestrator.run(input_data={"user_request": request.prompt})    
+
+    # 2. Verificamos el resultado del orquestador. Si falló, devolvemos un error HTTP.
+    if result.get("status") == "failed":
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "message": result.get("message", "Ocurrió un error inesperado durante la generación."),
+                "output": result.get("output", {})
+            }
+        )
+
+    # 3. Si todo fue exitoso, devolvemos la respuesta estándar.
+    return {"status": "success", "message": "Add-In generation process completed.", "output": result} 
 
 @app.get("/health")
 def health_check():

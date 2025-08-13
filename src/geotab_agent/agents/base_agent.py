@@ -1,9 +1,7 @@
 import abc
-import time
-import google.generativeai as genai
 from typing import Dict, Any
-from google.api_core import exceptions
-from geotab_agent.config import settings # Ahora importa desde el archivo correcto
+from geotab_agent.config import settings
+from geotab_agent.llm import BaseLLMProvider, GeminiProvider, OpenAIProvider
 
 
 class BaseAgent(abc.ABC):
@@ -22,24 +20,21 @@ class BaseAgent(abc.ABC):
             agent_name: Un nombre descriptivo para la instancia del agente.
         """
         self.agent_name = agent_name
-        self._model = None
+        self._llm_provider: BaseLLMProvider | None = None
         self._configure_llm()
 
     def _configure_llm(self):
-        """Configura y prepara el modelo generativo de Gemini."""
-        try:
-            # La configuración es global, por lo que solo necesita hacerse una vez,
-            # pero es seguro llamarla varias veces.
-            genai.configure(api_key=settings.GOOGLE_API_KEY)
-            self._model = genai.GenerativeModel(
-                model_name=settings.GEMINI_MODEL_NAME,
-                generation_config=settings.GENERATION_CONFIG, # Ahora este campo existe
-            )
-            print(f"✅ Agente '{self.agent_name}' inicializado. Modelo Gemini listo.")
-        except Exception as e:
-            print(f"❌ Error al configurar Gemini para el agente '{self.agent_name}': {e}")
-            # Re-lanzar la excepción es importante para detener la ejecución si el LLM no está disponible.
-            raise
+        """
+        Configura y prepara el proveedor de LLM basado en la configuración.
+        Este es un ejemplo del patrón de diseño Factory.
+        """
+        provider_name = settings.LLM_PROVIDER.lower()
+        if provider_name == "gemini":
+            self._llm_provider = GeminiProvider()
+        elif provider_name == "openai":
+            self._llm_provider = OpenAIProvider()
+        else:
+            raise ValueError(f"Proveedor de LLM no soportado: '{settings.LLM_PROVIDER}'")
 
     def log(self, message: str, level: str = "info"):
         """
@@ -53,25 +48,12 @@ class BaseAgent(abc.ABC):
         prefix = level_map.get(level.lower(), "ℹ️")
         print(f"{prefix} [{self.agent_name}] {message}")
 
-    def _call_llm(self, prompt: str, retries: int = 1, delay: int = 5) -> Any:
-        """
-        Llama al modelo LLM con una lógica de reintentos simple para manejar errores de cuota.
-        """
-        attempt = 0
-        while attempt <= retries:
-            try:
-                return self._model.generate_content(prompt)
-            except exceptions.ResourceExhausted as e:
-                if attempt < retries:
-                    self.log(f"Cuota de API excedida. Reintentando en {delay} segundos... (Intento {attempt + 1}/{retries})", "warning")
-                    time.sleep(delay)
-                    attempt += 1
-                else:
-                    self.log(f"Cuota de API excedida. No quedan más reintentos. Error: {e}", "error")
-                    raise  # Vuelve a lanzar la excepción si se agotan los reintentos
-            except Exception as e:
-                self.log(f"Ocurrió un error inesperado al llamar al LLM: {e}", "error")
-                raise
+    def _call_llm(self, prompt: str) -> str:
+        """Delega la llamada al proveedor de LLM configurado."""
+        if not self._llm_provider:
+            raise RuntimeError("El proveedor de LLM no ha sido inicializado.")
+        # La lógica de reintentos ahora está dentro de cada proveedor específico.
+        return self._llm_provider.generate_content(prompt)
 
     @abc.abstractmethod
     def run(self, input_data: Dict[str, Any]) -> Dict[str, Any]:

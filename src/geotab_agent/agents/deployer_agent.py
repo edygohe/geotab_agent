@@ -2,6 +2,9 @@ import pathlib
 import shutil
 import json
 import git
+import time
+import requests
+import re
 from .base_agent import BaseAgent
 from geotab_agent.config import settings
 
@@ -38,7 +41,38 @@ class DeployerAgent(BaseAgent):
             f.truncate() # Eliminar contenido antiguo si el nuevo es más corto
         
         self.log(f"URL actualizada a: {final_url}")
+        print(f"URL PÚBLICA DEL ADD-IN: {final_url}") # Log adicional para fácil acceso
         return json.dumps(config_data, indent=2, ensure_ascii=False)
+
+    def _wait_for_deployment(self, addin_name: str, timeout_seconds=180, check_interval_seconds=10):
+        """Espera a que el endpoint del Add-In esté disponible haciendo polling directo."""
+        self.log("Esperando la activación del endpoint de GitHub Pages (haciendo polling)...")
+        
+        final_url = f"{settings.GITHUB_PAGES_BASE_URL.rstrip('/')}/{addin_name}/index.html"
+        self.log(f"Haciendo polling a la URL: {final_url}")
+
+        start_time = time.time()
+        while time.time() - start_time < timeout_seconds:
+            try:
+                # Usamos un timeout corto para la petición para no quedarnos colgados
+                # Usamos HEAD porque es más ligero, solo necesitamos el código de estado.
+                response = requests.head(final_url, timeout=5)
+                
+                if response.status_code == 200:
+                    self.log("¡Endpoint del Add-In activo y respondiendo con 200 OK!", "success")
+                    return {"deploy_status": "success"}
+                else:
+                    # Logueamos otros códigos de estado para depuración, pero seguimos esperando
+                    self.log(f"El endpoint respondió con el código de estado: {response.status_code}. Reintentando...")
+
+            except requests.exceptions.RequestException as e:
+                # Esto puede pasar si el DNS aún no se ha propagado o el servidor no responde. Es normal al principio.
+                self.log(f"No se pudo conectar al endpoint ({type(e).__name__}). Reintentando...", "info")
+            
+            time.sleep(check_interval_seconds)
+
+        self.log(f"Tiempo de espera agotado ({timeout_seconds}s). El despliegue no se activó a tiempo.", "error")
+        return {"deploy_status": "failed", "error": "Timeout waiting for Add-In endpoint to become available."}
 
     def _commit_and_push(self, addin_name: str):
         """Añade, confirma y sube los cambios al repositorio de GitHub usando un PAT."""
@@ -62,12 +96,9 @@ class DeployerAgent(BaseAgent):
             # --- Lógica de Push Segura con PAT ---
             self.log("Haciendo push a origin usando el token de acceso personal...")
             
-            # Construir la URL remota con el token
-            # ej: https://<token>@github.com/usuario/repo.git
             remote_url = settings.GITHUB_REPO_URL
             push_url = remote_url.replace("https://", f"https://{settings.GITHUB_TOKEN}@")
 
-            # Hacer push al origen usando la URL segura
             repo.git.push(push_url)
             
             self.log("Push a GitHub completado con éxito.")
@@ -82,8 +113,22 @@ class DeployerAgent(BaseAgent):
         addin_name = source_path.name
 
         destination_path = self._copy_files(source_path, addin_name)
-        updated_config_content = self._update_config_url(destination_path, addin_name)
+        config_json_content = self._update_config_url(destination_path, addin_name)
+
+        push_result = self._commit_and_push(addin_name)
         
-        deploy_result = self._commit_and_push(addin_name)
-        deploy_result["config_json"] = updated_config_content
-        return deploy_result
+        # Si el push falló por alguna razón, no continuamos.
+        if push_result.get("deploy_status") not in ["success", "no_changes"]:
+            push_result["config_json"] = config_json_content
+            return push_result
+
+        # Si no hubo cambios, la página ya está desplegada. No es necesario esperar.
+        if push_result.get("deploy_status") == "no_changes":
+            self.log("No hubo cambios en el repositorio, se asume que la URL ya está activa.")
+            return {"deploy_status": "success", "config_json": config_json_content}
+
+        # Si el push fue exitoso, esperamos a que el despliegue esté activo.
+        wait_result = self._wait_for_deployment(addin_name)
+        
+        wait_result["config_json"] = config_json_content
+        return wait_result

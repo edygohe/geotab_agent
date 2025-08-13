@@ -1,0 +1,9 @@
+pydantic-settings
+google-generativeai
+GitPython
+openai
+
+[dev]
+pytest
+fastapi
+uvicorn[standard]
