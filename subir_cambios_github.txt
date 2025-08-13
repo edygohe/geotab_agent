@@ -50,3 +50,7 @@ mmdc -i ./arquitectura_general.md -o ./docs/diagrams/images/arquitectura_general
 
 # Ejemplo 2: Convertir el diseño del orquestador (desde la raíz del proyecto)
 mmdc -i ./docs/diagrams/md/orchestrator_design.md -o ./docs/diagrams/images/orchestrator_design.png
+
+
+# Eliminar directorios desde terminal posteriormente actualizar en git
+Remove-Item -Path .\addin_* -Recurse -Force
